@@ -1,12 +1,14 @@
-// Declare variables for DOM elements
-let start = document.querySelector("#start");
-let submit = document.querySelector("#submit");
-let scoreButtons = document.querySelectorAll('.scorebtn');
-let homeScore = document.querySelector("#homeScore");
-let awayScore = document.querySelector("#awayScore");
+const MILLISECONDS_PER_MINUTE = 1000 * 60
+const MILLISECONDS_PER_HOUR = 1000 * 60 * 60
 
-// Add eventlisteners
-start.addEventListener("click", startMatch);
+// Declare variables for DOM elements
+const startButton = document.querySelector("#start");
+const submitButton = document.querySelector("#submit");
+const scoreButtons = document.querySelectorAll('.scorebtn');
+const homeScoreDisplay = document.querySelector("#homeScore");
+const awayScoreDisplay = document.querySelector("#awayScore");
+
+startButton.addEventListener("click", startMatch);
 
 // My functions
 function startMatch() {
@@ -15,42 +17,29 @@ function startMatch() {
     element.addEventListener('click', adjustScore)
   });
 
-  // Hide start button, show submit button
-  start.classList.toggle("d-none");
-  submit.classList.toggle("d-none");
+  // Toggle start and submit buttons
+  startButton.classList.toggle("d-none");
+  submitButton.classList.toggle("d-none");
 
-  // Set counter
-  var gameTime = parseInt(document.getElementById("minutes").innerText);
-  var timerDistance = gameTime * 60 * 1000;
+  // Initialize a counter to the game length entered by the user
+  const gameDurationMinutes = parseInt(document.getElementById("minutes").innerText);
+  let timeValue = gameDurationMinutes * MILLISECONDS_PER_MINUTE;
 
-  // Update the count down every 1 second
-  var x = setInterval(function() {
-
-    // Decrease distance by 1 second
-
-    timerDistance = timerDistance - 1000;
-
-    // Time calculations for minutes and seconds
-    var minutes = Math.floor((timerDistance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-    var seconds = Math.floor((timerDistance % (1000 * 60)) / 1000).toString().padStart(2, '0');
-
-    // Output the result in an element with id="demo"
-    document.getElementById("minutes").innerHTML = minutes;
-    document.getElementById("seconds").innerHTML = seconds;
-
-    // If the count down is over, write some text
-    if (timerDistance < 0) {
+  // Update the count down every 1000 milliseconds
+  let x = setInterval(function() {
+    timeValue = timeValue - 1000;
+    if (timeValue < 0) {
       clearInterval(x);
-      document.getElementById("minutes").innerHTML = "00";
-      document.getElementById("seconds").innerHTML = "00";
+      displayTime(0)
+    } else {
+      displayTime(timeValue)
     }
   }, 1000);
 }
 
-
 function adjustScore(event) {
-  home = parseInt(homeScore.innerHTML)
-  away = parseInt(awayScore.innerHTML)
+  home = parseInt(homeScoreDisplay.innerHTML)
+  away = parseInt(awayScoreDisplay.innerHTML)
 
   switch(event.target.id) {
     case "addHome":
@@ -68,9 +57,18 @@ function adjustScore(event) {
     default:
       break;
   }
-  homeScore.innerHTML = home;
-  awayScore.innerHTML = away;
+  homeScoreDisplay.innerHTML = home;
+  awayScoreDisplay.innerHTML = away;
   document.getElementById("homeScoreSubmit").value = home
   document.getElementById("awayScoreSubmit").value = away
 }
 
+function displayTime(timeValue) {
+  // Construct strings to display minutes and seconds
+  const minutes = Math.floor((timeValue % MILLISECONDS_PER_HOUR) / MILLISECONDS_PER_MINUTE).toString().padStart(2, '0');
+  const seconds = Math.floor((timeValue % MILLISECONDS_PER_MINUTE) / 1000).toString().padStart(2, '0');
+
+  // Display the strings on the HTML page
+  document.getElementById("minutes").innerHTML = minutes;
+  document.getElementById("seconds").innerHTML = seconds;
+}
